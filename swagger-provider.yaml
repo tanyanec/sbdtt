@@ -1,0 +1,184 @@
+openapi: 3.0.0
+info:
+  description: Протокол интеграции с онлайн кинотеатром
+  version: 1.0.0
+  title: API провайдера онлайн кинотеатра
+tags:
+  - name: Online cinema
+servers:
+  - url: /v1/film
+paths:
+  /{id}:
+    get:
+      tags:
+        - Online cinema
+      summary: 'Получение фильма по идентифкатору'
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The film ID
+      responses:
+        "200":
+          description: Ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilmInfoResponse'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorCodeResponse'
+                  - $ref: '#/components/schemas/ErrorMessageResponse'
+        "404":  
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+        
+  /search:
+   get:
+      tags:
+        - Online cinema
+      summary: 'Получение списка фильмов по названию'
+      parameters:
+        - in: query
+          name: title
+          schema:
+            type: string
+          description: Title to search for a film
+          example: 'Джентельмены'
+      responses:
+        "200":
+          description: Ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorCodeResponse'
+                  - $ref: '#/components/schemas/ErrorMessageResponse'
+        
+components:
+  schemas:
+    FilmInfoResponse:
+      type: object
+      required:
+        - film_id
+        - title
+        - description
+        - issue_year
+        - producer
+        - lasting
+        - link
+      properties:  
+        film_id:
+          type: string
+          format: uuid
+          description: Идентификатор фильма
+          example: 123e4567-e89b-12d3-a456-426655440000
+        title:
+          type: string
+          description: Название фильма
+          example: 'Джентельмены'
+        description:
+          type: string
+          description: Описание фильма
+          example: 'Успешное возвращение Гая Ричи к корням — острая и живая криминальная комедия с блестящим актерским составом'
+        issue_year:
+          type: integer
+          description: Год выпуска
+          example: 2019
+        genre:
+          type: array
+          items:
+            type: string
+            description: Жанр фильма
+            example: 'Боевик'
+        producer:
+          type: string
+          description: Режиссер
+          example: 'Гай Ричи'
+        lasting:
+          type: integer
+          description: Длительность в минутах
+          example: 113
+        link:
+          type: string
+          description: Ссылка на просмотр фильма
+        rating:
+          type: number
+          format: double
+          description: Рейтинг фильма
+          example: 8.5
+        trailer:
+          type: string
+          description: Ссылка на просмотр трейлера
+        country:
+          type: string
+          description: Страна
+          example: 'Великобритания' 
+        actors:
+          type: array
+          items:
+            type: string
+            description: Актеры
+            example: 'Мэттью МакКонахи'
+        age_limit:
+          type: integer
+          enum: [ 1, 2, 3, 4, 5 ]
+          description: |-
+            Возрастное ограничение
+            * 1 - 0+
+            * 2 - 6+
+            * 3 - 12+
+            * 4 - 16+
+            * 5 - 18+
+          example: 5
+        
+    SearchResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: Идентификатор фильма
+            example: 123e4567-e89b-12d3-a456-426655440000
+          title:
+            type: string
+            description: Название фильма
+            example: 'Джентельмены'
+       
+    ErrorCodeResponse:
+      type: object
+      properties:
+        response_code:
+          type: integer
+          enum: [ 1, 2 ]
+          description: |-
+            Результат проверки
+            * 1 - Некорректный id
+            * 2 - Неизвестная ошибка
+          example: 1
+          
+    ErrorMessageResponse:  
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
+      description: Ошибка обработки запроса
