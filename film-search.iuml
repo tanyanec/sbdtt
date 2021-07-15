@@ -1,0 +1,66 @@
+@startuml
+hide footbox
+
+skinparam {
+    EntityBackgroundColor #7acff5
+    EntityBorderColor #000
+    ParticipantBackgroundColor #7acff5
+    ParticipantBorderColor #000
+	ActorBackgroundColor #7acff5
+    ActorBorderColor #000
+
+    DatabaseBackgroundColor #7acff5
+    DatabaseBorderColor #000
+
+    SequenceLifeLineBackgroundColor #7acff5
+    SequenceLifeLineBorderColor #000
+
+  BackgroundColor #00
+
+    NoteBackgroundColor #f3e7f8
+    NoteBorderColor #cc93e1
+    NoteRoundCorner 20
+    ArrowColor #000
+
+    SequenceGroupBorderThickness 0
+    Shadowing false
+}
+autonumber
+
+participant "Система А" as A
+participant Kafka as kafka
+participant "Система В" as B
+participant Провайдер as pr
+
+activate A
+A -> kafka: Получить список фильмов
+deactivate A
+activate kafka
+kafka --> A: Ack
+deactivate kafka
+activate B
+B -> kafka: Запрос на поиск фильмов
+deactivate B
+activate kafka
+kafka --> B: Запрос
+deactivate kafka
+activate B
+B -> pr: Метод /film/search
+deactivate B
+activate pr
+pr --> B: Список фильмов
+deactivate pr
+activate B
+B -> kafka: Список фильмов
+deactivate B
+activate kafka
+kafka --> B: Ack
+deactivate kafka
+activate A
+A -> kafka: Забрать список фильмов
+deactivate A
+activate kafka
+kafka --> A: Список фильмов
+activate A
+
+@enduml
